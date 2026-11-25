@@ -89,3 +89,48 @@ Page Fault Rate = 1.000
 [?2004lexit
 
 Script done on 2026-11-25 19:01:54-03:00 [COMMAND_EXIT_CODE="0"]
+Script started on 2026-11-25 19:13:58-03:00 [TERM="xterm-256color" TTY="/dev/pts/10" COLUMNS="100" LINES="10"]
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ [7mmake[27m
+[7m./vm addresses.txt fifo fifo[27m
+[7mtail -3 correct.txt[27m
+[7m./vm addresses.txt lru fifo[27m
+[7mtail -3 correct.txt[27m[A[A[A[A]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ make
+./vm addresses.txt fifo fifo
+tail -3 correct.txt
+./vm addresses.txt lru fifo
+tail -3 correct.txt[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[7mmake[27m
+[7m./vm addresses.txt fifo fifo[27m
+[7mtail -3 correct.txt[27m
+[7m./vm addresses.txt lru fifo[27m
+[7mtail -3 correct.txt[27m[A[A[A[A]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ make
+./vm addresses.txt fifo fifo
+tail -3 correct.txt
+./vm addresses.txt lru fifo
+tail -3 correct.txt[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[K[A[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C
+[?2004lgcc -Wall -Wextra -pthread -o vm vm.c
+Erro: formato inválido na linha 1000
+tail: cannot open 'correct.txt' for reading: No such file or directory
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ [7m./vm addresses.txt lru fifo[27m
+[7mtail -3 correct.txt[27m[A]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ ./vm addresses.txt lru fifo
+tail -3 correct.txt
+[?2004lErro: formato inválido na linha 1000
+tail: cannot open 'correct.txt' for reading: No such file or directory
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ [7m./vm addresses.txt fifo fifo[27m
+[7mtail -3 correct.txt[27m[A]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ ./vm addresses.txt fifo fifo
+tail -3 correct.txt
+[?2004lNumber of Translated Addresses = 1000
+Page Faults = 538
+Page Fault Rate = 0.538
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ [7m./vm addresses.txt lru fifo[27m
+[7mtail -3 correct.txt[27m[A]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ ./vm addresses.txt lru fifo
+tail -3 correct.txt
+[?2004lNumber of Translated Addresses = 1000
+Page Faults = 539
+Page Fault Rate = 0.539
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ make clean
+[?2004lrm -f vm correct.txt
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ clear
+[?2004l[H[2J[3J[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ eixt[K[K[Kxit
+[?2004lexit
+
+Script done on 2026-11-25 19:15:21-03:00 [COMMAND_EXIT_CODE="0"]

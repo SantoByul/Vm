@@ -29,9 +29,12 @@ int main(int argc, char *argv[])
 
     int tabela_paginas[NUM_PAGINAS];
     int frame_para_pagina[NUM_FRAMES];
+    long ultimo_uso[NUM_FRAMES];
     signed char memoria[NUM_FRAMES][TAM_PAGINA];
     int frames_usados = 0;
     int fifo_proximo = 0;
+    long relogio = 0;
+    int usar_lru;
     int page_faults = 0;
     int total = 0;
     int frame;
@@ -54,10 +57,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    if (strcmp(argv[2], "lru") == 0) {
-        fprintf(stderr, "Erro: substituição lru ainda não implementada\n");
-        return 1;
-    }
+    usar_lru = strcmp(argv[2], "lru") == 0;
 
     FILE *f = fopen(argv[1], "r");
     if (f == NULL) {
@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 
     for (i = 0; i < NUM_FRAMES; i++) {
         frame_para_pagina[i] = -1;
+        ultimo_uso[i] = 0;
     }
 
     while (fgets(linha, sizeof(linha), f) != NULL) {
@@ -111,6 +112,14 @@ int main(int argc, char *argv[])
             if (frames_usados < NUM_FRAMES) {
                 frame = frames_usados;
                 frames_usados++;
+            } else if (usar_lru) {
+                frame = 0;
+                for (i = 1; i < NUM_FRAMES; i++) {
+                    if (ultimo_uso[i] < ultimo_uso[frame]) {
+                        frame = i;
+                    }
+                }
+                tabela_paginas[frame_para_pagina[frame]] = -1;
             } else {
                 frame = fifo_proximo;
                 tabela_paginas[frame_para_pagina[frame]] = -1;
@@ -131,6 +140,9 @@ int main(int argc, char *argv[])
         }
 
         frame = tabela_paginas[e.pagina];
+        relogio++;
+        ultimo_uso[frame] = relogio;
+
         fisico = frame * TAM_PAGINA + e.offset;
         valor = memoria[frame][e.offset];
 
