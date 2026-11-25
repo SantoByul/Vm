@@ -1,0 +1,71 @@
+# Gerenciador de Memória Virtual
+
+Simulador de memória virtual em C. Traduz endereços lógicos de 16 bits em endereços físicos, usando paginação sob demanda com 128 frames de 256 bytes e substituição de página FIFO ou LRU.
+
+## Requisitos
+
+- Linux, Unix ou macOS
+- `gcc` e `make`
+- O arquivo `BACKING_STORE.bin` na pasta de execução
+- Um arquivo de endereços lógicos (por exemplo, `addresses.txt`), com um número inteiro de 0 a 65535 por linha
+
+## Compilação
+
+```bash
+make
+```
+
+Gera o executável `vm`. Para apagar os arquivos gerados:
+
+```bash
+make clean
+```
+
+## Execução
+
+```bash
+./vm <arquivo_de_enderecos> <fifo|lru> <fifo|lru>
+```
+
+- 1º argumento: arquivo de endereços lógicos
+- 2º argumento: algoritmo de substituição de página (`fifo` ou `lru`)
+- 3º argumento: algoritmo de substituição da TLB (`fifo` ou `lru`). É validado, mas ainda não é usado nesta versão
+
+Exemplo:
+
+```bash
+./vm addresses.txt lru fifo
+```
+
+## Saída
+
+O programa grava o arquivo `correct.txt`, com uma linha por endereço:
+
+```
+Virtual address: 16916 Physical address: 20 Value: 0
+```
+
+e, no final, as estatísticas:
+
+```
+Number of Translated Addresses = 1000
+Page Faults = 539
+Page Fault Rate = 0.539
+```
+
+## Tratamento de erros
+
+O programa mostra uma mensagem de erro e encerra, sem criar o `correct.txt`, quando:
+
+- o número de argumentos é diferente de 3
+- o algoritmo informado não é `fifo` nem `lru`
+- o arquivo de endereços não existe ou não pode ser aberto
+- alguma linha do arquivo não é um inteiro entre 0 e 65535
+- o `BACKING_STORE.bin` não pode ser aberto
+
+## Funcionamento resumido
+
+1. Cada endereço é dividido em número de página (8 bits) e deslocamento (8 bits).
+2. A tabela de páginas indica em qual frame a página está.
+3. Se a página não está na memória (page fault), ela é lida do `BACKING_STORE.bin`.
+4. Os frames são preenchidos do 0 ao 127. Com a memória cheia, o algoritmo escolhido (FIFO ou LRU) define qual frame será substituído.
