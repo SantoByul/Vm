@@ -44,3 +44,31 @@ Endereço: 2315 Página: 9 Offset: 11
 [?2004lexit
 
 Script done on 2026-11-25 17:00:18-03:00 [COMMAND_EXIT_CODE="0"]
+Script started on 2026-11-25 17:20:17-03:00 [TERM="xterm-256color" TTY="/dev/pts/8" COLUMNS="100" LINES="10"]
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ a[Kmake all
+[?2004lgcc vm.c -o vm
+./vm adressess.txt lru fifo
+Erro: não foi possível abrir BACKING_STORE.bin
+make: *** [makefile:5: all] Error 1
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ m[K./vm add[Kressess.txt lru fifo
+[?2004lErro: não foi possível abrir BACKING_STORE.bin
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ cl[K[Kexit
+[?2004lexit
+
+Script done on 2026-11-25 17:21:55-03:00 [COMMAND_EXIT_CODE="1"]
+Script started on 2026-11-25 17:26:12-03:00 [TERM="xterm-256color" TTY="/dev/pts/8" COLUMNS="100" LINES="10"]
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ make all
+[?2004lgcc vm.c -o vm
+./vm adressess.txt lru fifo
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ MAKE CL[K[K[K[K[K[K[Kmake clean
+[?2004lrm -f vm correct.txt
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ make all
+[?2004lgcc vm.c -o vm
+./vm adressess.txt lru fifo
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ make clean
+[?2004lrm -f vm correct.txt
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ clear
+[?2004l[H[2J[3J[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ exit
+[?2004lexit
+
+Script done on 2026-11-25 17:45:13-03:00 [COMMAND_EXIT_CODE="0"]

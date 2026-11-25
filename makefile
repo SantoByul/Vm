@@ -8,4 +8,4 @@ compile:
 	gcc vm.c -o vm
 
 clean:
-	rm -f vm
+	rm -f vm correct.txt

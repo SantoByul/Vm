@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define TAM_PAGINA 256
+#define NUM_PAGINAS 256
+#define NUM_FRAMES 256
+
 typedef struct {
     int pagina;
     int offset;
@@ -22,6 +26,16 @@ int main(int argc, char *argv[])
     long v;
     int n = 0;
     Endereco e;
+
+    int tabela_paginas[NUM_PAGINAS];
+    signed char memoria[NUM_FRAMES][TAM_PAGINA];
+    int proximo_frame = 0;
+    int page_faults = 0;
+    int total = 0;
+    int frame;
+    int fisico;
+    signed char valor;
+    int i;
 
     if (argc != 4) {
         fprintf(stderr, "Uso: %s <arquivo> <fifo|lru> <fifo|lru>\n", argv[0]);
@@ -56,12 +70,59 @@ int main(int argc, char *argv[])
 
     rewind(f);
 
+    FILE *backing = fopen("BACKING_STORE.bin", "rb");
+    if (backing == NULL) {
+        fprintf(stderr, "Erro: não foi possível abrir BACKING_STORE.bin\n");
+        fclose(f);
+        return 1;
+    }
+
+    FILE *saida = fopen("correct.txt", "w");
+    if (saida == NULL) {
+        fprintf(stderr, "Erro: não foi possível criar correct.txt\n");
+        fclose(f);
+        fclose(backing);
+        return 1;
+    }
+
+    for (i = 0; i < NUM_PAGINAS; i++) {
+        tabela_paginas[i] = -1;
+    }
+
     while (fgets(linha, sizeof(linha), f) != NULL) {
         v = strtol(linha, NULL, 10);
         e = traduzir(v);
-        printf("Endereço: %ld Página: %d Offset: %d\n", v, e.pagina, e.offset);
+        total++;
+
+        if (tabela_paginas[e.pagina] == -1) {
+            page_faults++;
+
+            if (fseek(backing, (long)e.pagina * TAM_PAGINA, SEEK_SET) != 0 ||
+                fread(memoria[proximo_frame], 1, TAM_PAGINA, backing) != TAM_PAGINA) {
+                fprintf(stderr, "Erro: falha ao ler a página %d do BACKING_STORE.bin\n", e.pagina);
+                fclose(f);
+                fclose(backing);
+                fclose(saida);
+                return 1;
+            }
+
+            tabela_paginas[e.pagina] = proximo_frame;
+            proximo_frame++;
+        }
+
+        frame = tabela_paginas[e.pagina];
+        fisico = frame * TAM_PAGINA + e.offset;
+        valor = memoria[frame][e.offset];
+
+        fprintf(saida, "Virtual address: %ld Physical address: %d Value: %d\n", v, fisico, valor);
     }
 
+    fprintf(saida, "Number of Translated Addresses = %d\n", total);
+    fprintf(saida, "Page Faults = %d\n", page_faults);
+    fprintf(saida, "Page Fault Rate = %.3f\n", (double)page_faults / total);
+
     fclose(f);
+    fclose(backing);
+    fclose(saida);
     return 0;
 }
