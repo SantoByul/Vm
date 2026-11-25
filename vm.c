@@ -1,10 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define TAM_PAGINA 256
 #define NUM_PAGINAS 256
 #define NUM_FRAMES 128
+#define TAM_LINHA 64
+#define ENDERECO_MAX 65535
 
 typedef struct {
     int pagina;
@@ -19,12 +22,25 @@ Endereco traduzir(long v)
     return e;
 }
 
+int linha_vazia(const char *s)
+{
+    while (*s) {
+        if (!isspace((unsigned char)*s)) {
+            return 0;
+        }
+        s++;
+    }
+    return 1;
+}
+
 int main(int argc, char *argv[])
 {
-    char linha[64];
+    char linha[TAM_LINHA];
     char *fim;
     long v;
     int n = 0;
+    int validos = 0;
+    int primeira_vazia = 0;
     Endereco e;
 
     int tabela_paginas[NUM_PAGINAS];
@@ -43,17 +59,18 @@ int main(int argc, char *argv[])
     int i;
 
     if (argc != 4) {
+        fprintf(stderr, "Erro: número de argumentos inválido (recebidos %d, esperados 3)\n", argc - 1);
         fprintf(stderr, "Uso: %s <arquivo> <fifo|lru> <fifo|lru>\n", argv[0]);
         return 1;
     }
 
     if (strcmp(argv[2], "fifo") != 0 && strcmp(argv[2], "lru") != 0) {
-        fprintf(stderr, "Erro: algoritmo de página inválido\n");
+        fprintf(stderr, "Erro: algoritmo de página '%s' inválido. Use fifo ou lru\n", argv[2]);
         return 1;
     }
 
     if (strcmp(argv[3], "fifo") != 0 && strcmp(argv[3], "lru") != 0) {
-        fprintf(stderr, "Erro: algoritmo de TLB inválido\n");
+        fprintf(stderr, "Erro: algoritmo de TLB '%s' inválido. Use fifo ou lru\n", argv[3]);
         return 1;
     }
 
@@ -67,12 +84,56 @@ int main(int argc, char *argv[])
 
     while (fgets(linha, sizeof(linha), f) != NULL) {
         n++;
-        v = strtol(linha, &fim, 10);
-        if (fim == linha || (*fim != '\n' && *fim != '\0') || v < 0 || v > 65535) {
+
+        if (strchr(linha, '\n') == NULL && !feof(f)) {
+            fprintf(stderr, "Erro: linha %d é longa demais\n", n);
+            fclose(f);
+            return 1;
+        }
+
+        if (linha_vazia(linha)) {
+            if (primeira_vazia == 0) {
+                primeira_vazia = n;
+            }
+            continue;
+        }
+
+        if (primeira_vazia != 0) {
+            fprintf(stderr, "Erro: linha %d está vazia\n", primeira_vazia);
+            fclose(f);
+            return 1;
+        }
+
+        if (!isdigit((unsigned char)linha[0])) {
             fprintf(stderr, "Erro: formato inválido na linha %d\n", n);
             fclose(f);
             return 1;
         }
+
+        v = strtol(linha, &fim, 10);
+        while (isspace((unsigned char)*fim)) {
+            fim++;
+        }
+
+        if (*fim != '\0' || v < 0 || v > ENDERECO_MAX) {
+            fprintf(stderr, "Erro: formato inválido na linha %d\n", n);
+            fclose(f);
+            return 1;
+        }
+
+        validos++;
+    }
+
+    if (ferror(f)) {
+        fprintf(stderr, "Erro: falha ao ler %s\n", argv[1]);
+        fclose(f);
+        return 1;
+    }
+
+    if (validos == 0) {
+        fprintf(stderr, "Erro: o arquivo %s não contém endereços\n", argv[1]);
+        fclose(f);
+        return 1;
     }
 
     rewind(f);
@@ -84,77 +145,15 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    FILE *saida = fopen("correct.txt", "w");
-    if (saida == NULL) {
-        fprintf(stderr, "Erro: não foi possível criar correct.txt\n");
+    if (fseek(backing, 0, SEEK_END) != 0 || ftell(backing) < (long)NUM_PAGINAS * TAM_PAGINA) {
+        fprintf(stderr, "Erro: BACKING_STORE.bin inválido ou menor que %d bytes\n", NUM_PAGINAS * TAM_PAGINA);
         fclose(f);
         fclose(backing);
         return 1;
     }
 
-    for (i = 0; i < NUM_PAGINAS; i++) {
-        tabela_paginas[i] = -1;
-    }
+    rewind(backing);
 
-    for (i = 0; i < NUM_FRAMES; i++) {
-        frame_para_pagina[i] = -1;
-        ultimo_uso[i] = 0;
-    }
-
-    while (fgets(linha, sizeof(linha), f) != NULL) {
-        v = strtol(linha, NULL, 10);
-        e = traduzir(v);
-        total++;
-
-        if (tabela_paginas[e.pagina] == -1) {
-            page_faults++;
-
-            if (frames_usados < NUM_FRAMES) {
-                frame = frames_usados;
-                frames_usados++;
-            } else if (usar_lru) {
-                frame = 0;
-                for (i = 1; i < NUM_FRAMES; i++) {
-                    if (ultimo_uso[i] < ultimo_uso[frame]) {
-                        frame = i;
-                    }
-                }
-                tabela_paginas[frame_para_pagina[frame]] = -1;
-            } else {
-                frame = fifo_proximo;
-                tabela_paginas[frame_para_pagina[frame]] = -1;
-                fifo_proximo = (fifo_proximo + 1) % NUM_FRAMES;
-            }
-
-            if (fseek(backing, (long)e.pagina * TAM_PAGINA, SEEK_SET) != 0 ||
-                fread(memoria[frame], 1, TAM_PAGINA, backing) != TAM_PAGINA) {
-                fprintf(stderr, "Erro: falha ao ler a página %d do BACKING_STORE.bin\n", e.pagina);
-                fclose(f);
-                fclose(backing);
-                fclose(saida);
-                return 1;
-            }
-
-            tabela_paginas[e.pagina] = frame;
-            frame_para_pagina[frame] = e.pagina;
-        }
-
-        frame = tabela_paginas[e.pagina];
-        relogio++;
-        ultimo_uso[frame] = relogio;
-
-        fisico = frame * TAM_PAGINA + e.offset;
-        valor = memoria[frame][e.offset];
-
-        fprintf(saida, "Virtual address: %ld Physical address: %d Value: %d\n", v, fisico, valor);
-    }
-
-    fprintf(saida, "Number of Translated Addresses = %d\n", total);
-    fprintf(saida, "Page Faults = %d\n", page_faults);
-    fprintf(saida, "Page Fault Rate = %.3f\n", (double)page_faults / total);
-
-    fclose(f);
-    fclose(backing);
-    fclose(saida);
-    return 0;
-}
+    FILE *saida = fopen("correct.txt", "w");
+    if (saida == NULL) {
+        fprintf(stderr, "Erro: não foi possível criar
