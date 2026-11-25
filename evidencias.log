@@ -15,3 +15,32 @@ Script started on 2026-11-25 16:08:51-03:00 [TERM="xterm-256color" TTY="/dev/pts
 [?2004lexit
 
 Script done on 2026-11-25 16:09:39-03:00 [COMMAND_EXIT_CODE="0"]
+Script started on 2026-11-25 16:59:54-03:00 [TERM="xterm-256color" TTY="/dev/pts/7" COLUMNS="100" LINES="10"]
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ make all
+[?2004lgcc vm.c -o vm
+./vm adressess.txt lru fifo
+Endereço: 16916 Página: 66 Offset: 20
+Endereço: 62493 Página: 244 Offset: 29
+Endereço: 30198 Página: 117 Offset: 246
+Endereço: 53683 Página: 209 Offset: 179
+Endereço: 40185 Página: 156 Offset: 249
+Endereço: 28781 Página: 112 Offset: 109
+Endereço: 24462 Página: 95 Offset: 142
+Endereço: 48399 Página: 189 Offset: 15
+Endereço: 64815 Página: 253 Offset: 47
+Endereço: 18295 Página: 71 Offset: 119
+Endereço: 12218 Página: 47 Offset: 186
+Endereço: 22760 Página: 88 Offset: 232
+Endereço: 57982 Página: 226 Offset: 126
+Endereço: 27966 Página: 109 Offset: 62
+Endereço: 54894 Página: 214 Offset: 110
+Endereço: 38929 Página: 152 Offset: 17
+Endereço: 32865 Página: 128 Offset: 97
+Endereço: 64243 Página: 250 Offset: 243
+Endereço: 2315 Página: 9 Offset: 11
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ make[K[K[K[Kmake clean
+[?2004lrm -f vm
+[?2004h]0;danie@SantoByul: ~/Soft/Vm[01;32mdanie@SantoByul[00m:[01;34m~/Soft/Vm[00m$ exit
+[?2004lexit
+
+Script done on 2026-11-25 17:00:18-03:00 [COMMAND_EXIT_CODE="0"]

@@ -2,7 +2,7 @@
 
 all:
 	gcc vm.c -o vm
-	./vm
+	./vm adressess.txt lru fifo
 
 compile:
 	gcc vm.c -o vm
