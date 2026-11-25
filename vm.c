@@ -156,4 +156,85 @@ int main(int argc, char *argv[])
 
     FILE *saida = fopen("correct.txt", "w");
     if (saida == NULL) {
-        fprintf(stderr, "Erro: não foi possível criar
+        fprintf(stderr, "Erro: não foi possível criar correct.txt\n");
+        fclose(f);
+        fclose(backing);
+        return 1;
+    }
+
+    for (i = 0; i < NUM_PAGINAS; i++) {
+        tabela_paginas[i] = -1;
+    }
+
+    for (i = 0; i < NUM_FRAMES; i++) {
+        frame_para_pagina[i] = -1;
+        ultimo_uso[i] = 0;
+    }
+
+    while (fgets(linha, sizeof(linha), f) != NULL) {
+        if (linha_vazia(linha)) {
+            continue;
+        }
+
+        v = strtol(linha, NULL, 10);
+        e = traduzir(v);
+        total++;
+
+        if (tabela_paginas[e.pagina] == -1) {
+            page_faults++;
+
+            if (frames_usados < NUM_FRAMES) {
+                frame = frames_usados;
+                frames_usados++;
+            } else if (usar_lru) {
+                frame = 0;
+                for (i = 1; i < NUM_FRAMES; i++) {
+                    if (ultimo_uso[i] < ultimo_uso[frame]) {
+                        frame = i;
+                    }
+                }
+                tabela_paginas[frame_para_pagina[frame]] = -1;
+            } else {
+                frame = fifo_proximo;
+                tabela_paginas[frame_para_pagina[frame]] = -1;
+                fifo_proximo = (fifo_proximo + 1) % NUM_FRAMES;
+            }
+
+            if (fseek(backing, (long)e.pagina * TAM_PAGINA, SEEK_SET) != 0 ||
+                fread(memoria[frame], 1, TAM_PAGINA, backing) != TAM_PAGINA) {
+                fprintf(stderr, "Erro: falha ao ler a página %d do BACKING_STORE.bin\n", e.pagina);
+                fclose(f);
+                fclose(backing);
+                fclose(saida);
+                remove("correct.txt");
+                return 1;
+            }
+
+            tabela_paginas[e.pagina] = frame;
+            frame_para_pagina[frame] = e.pagina;
+        }
+
+        frame = tabela_paginas[e.pagina];
+        relogio++;
+        ultimo_uso[frame] = relogio;
+
+        fisico = frame * TAM_PAGINA + e.offset;
+        valor = memoria[frame][e.offset];
+
+        fprintf(saida, "Virtual address: %ld Physical address: %d Value: %d\n", v, fisico, valor);
+    }
+
+    fprintf(saida, "Number of Translated Addresses = %d\n", total);
+    fprintf(saida, "Page Faults = %d\n", page_faults);
+    fprintf(saida, "Page Fault Rate = %.3f\n", (double)page_faults / total);
+
+    fclose(f);
+    fclose(backing);
+
+    if (fclose(saida) != 0) {
+        fprintf(stderr, "Erro: falha ao gravar correct.txt\n");
+        return 1;
+    }
+
+    return 0;
+}
