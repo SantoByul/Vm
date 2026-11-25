@@ -4,7 +4,7 @@
 
 #define TAM_PAGINA 256
 #define NUM_PAGINAS 256
-#define NUM_FRAMES 256
+#define NUM_FRAMES 128
 
 typedef struct {
     int pagina;
@@ -28,8 +28,10 @@ int main(int argc, char *argv[])
     Endereco e;
 
     int tabela_paginas[NUM_PAGINAS];
+    int frame_para_pagina[NUM_FRAMES];
     signed char memoria[NUM_FRAMES][TAM_PAGINA];
-    int proximo_frame = 0;
+    int frames_usados = 0;
+    int fifo_proximo = 0;
     int page_faults = 0;
     int total = 0;
     int frame;
@@ -49,6 +51,11 @@ int main(int argc, char *argv[])
 
     if (strcmp(argv[3], "fifo") != 0 && strcmp(argv[3], "lru") != 0) {
         fprintf(stderr, "Erro: algoritmo de TLB inválido\n");
+        return 1;
+    }
+
+    if (strcmp(argv[2], "lru") == 0) {
+        fprintf(stderr, "Erro: substituição lru ainda não implementada\n");
         return 1;
     }
 
@@ -89,6 +96,10 @@ int main(int argc, char *argv[])
         tabela_paginas[i] = -1;
     }
 
+    for (i = 0; i < NUM_FRAMES; i++) {
+        frame_para_pagina[i] = -1;
+    }
+
     while (fgets(linha, sizeof(linha), f) != NULL) {
         v = strtol(linha, NULL, 10);
         e = traduzir(v);
@@ -97,8 +108,17 @@ int main(int argc, char *argv[])
         if (tabela_paginas[e.pagina] == -1) {
             page_faults++;
 
+            if (frames_usados < NUM_FRAMES) {
+                frame = frames_usados;
+                frames_usados++;
+            } else {
+                frame = fifo_proximo;
+                tabela_paginas[frame_para_pagina[frame]] = -1;
+                fifo_proximo = (fifo_proximo + 1) % NUM_FRAMES;
+            }
+
             if (fseek(backing, (long)e.pagina * TAM_PAGINA, SEEK_SET) != 0 ||
-                fread(memoria[proximo_frame], 1, TAM_PAGINA, backing) != TAM_PAGINA) {
+                fread(memoria[frame], 1, TAM_PAGINA, backing) != TAM_PAGINA) {
                 fprintf(stderr, "Erro: falha ao ler a página %d do BACKING_STORE.bin\n", e.pagina);
                 fclose(f);
                 fclose(backing);
@@ -106,8 +126,8 @@ int main(int argc, char *argv[])
                 return 1;
             }
 
-            tabela_paginas[e.pagina] = proximo_frame;
-            proximo_frame++;
+            tabela_paginas[e.pagina] = frame;
+            frame_para_pagina[frame] = e.pagina;
         }
 
         frame = tabela_paginas[e.pagina];
